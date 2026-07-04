@@ -5,7 +5,7 @@
 # Nombre:       Claude Code
 # Descripción:  CLI oficial de Anthropic para Claude
 # Web:          https://claude.ai/code
-# Gestor:       Homebrew (Node/npm) + npm install -g
+# Gestor:       Instalador nativo (curl | bash) · se auto-actualiza
 # Config:       Tema dark-daltonized · Idioma español · Status bar personalizado
 # =============================================================================
 
@@ -52,22 +52,6 @@ ensure_brew() {
     fi
 }
 
-# --- Asegurar Node y npm via brew ---
-ensure_node() {
-    if command -v node &>/dev/null; then
-        print_info "Node $(node --version) encontrado"
-        return 0
-    fi
-
-    print_info "Instalando Node.js via Homebrew..."
-    if brew install node >> "$LOG_FILE" 2>&1; then
-        print_ok "Node.js instalado ($(node --version))"
-    else
-        print_error "No se pudo instalar Node.js"
-        exit 1
-    fi
-}
-
 # --- Verificar si está instalado ---
 is_installed() {
     command -v claude &>/dev/null
@@ -78,14 +62,28 @@ get_version() {
     claude --version 2>/dev/null | head -1
 }
 
-# --- Instalar ---
+# --- Instalar (instalador nativo oficial) ---
 do_install() {
-    npm install -g @anthropic-ai/claude-code >> "$LOG_FILE" 2>&1
+    curl -fsSL https://claude.ai/install.sh | bash >> "$LOG_FILE" 2>&1
 }
 
-# --- Actualizar ---
+# --- Actualizar (fuerza la actualización sin esperar el chequeo en segundo plano) ---
 do_update() {
-    npm update -g @anthropic-ai/claude-code >> "$LOG_FILE" 2>&1
+    claude update >> "$LOG_FILE" 2>&1
+}
+
+# --- Garantizar que ~/.local/bin esté en el PATH del shell ---
+ensure_local_bin_in_path() {
+    local local_bin="$HOME/.local/bin"
+    local rc_file="$HOME/.bashrc"
+    [[ "${SHELL:-}" == *zsh* ]] && rc_file="$HOME/.zshrc"
+
+    if [[ -f "$rc_file" ]] && grep -qF "$local_bin" "$rc_file"; then
+        return 0
+    fi
+
+    printf '\n%s\n' "export PATH=\"$local_bin:\$PATH\"" >> "$rc_file"
+    print_warn "Se agregó $local_bin al PATH en $rc_file — reinicia la terminal o corre: source $rc_file"
 }
 
 # --- Aplicar configuración en ~/.claude/settings.json ---
@@ -128,7 +126,6 @@ main() {
     print_section "$TOOL_NAME"
     detect_os
     ensure_brew
-    ensure_node
 
     if is_installed; then
         local version
@@ -149,6 +146,7 @@ main() {
         fi
     fi
 
+    ensure_local_bin_in_path
     apply_statusline
     apply_settings
 }

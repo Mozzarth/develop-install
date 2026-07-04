@@ -65,5 +65,5 @@ if [[ -z "${LOG_FILE:-}" ]]; then ...
 | `vscode/` | Visual Studio Code   | brew cask        | repo Microsoft      |
 | `ghostty/`| Ghostty              | brew cask        | Flatpak             |
 | `ohmyzsh/`| Oh My Zsh            | brew (zsh) + curl installer + git clone plugins | brew (zsh) + curl installer + git clone plugins |
-| `claude/` | Claude Code          | brew (node) + npm install -g | brew (node) + npm install -g |
+| `claude/` | Claude Code          | instalador nativo (curl \| bash) | instalador nativo (curl \| bash) |
 | `nvim/`   | Neovim               | brew formula | brew formula |
