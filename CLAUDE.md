@@ -55,6 +55,7 @@ if [[ -z "${LOG_FILE:-}" ]]; then ...
 - **Log**: `LOG_FILE` se recibe como variable de entorno desde el orquestador, o se crea localmente si el script corre solo. Los logs van a `~/.dev-install/`.
 - **Salida con `exit 1`** si falla una instalación. Las advertencias (`print_warn`) no abortan.
 - **Agregar un programa nuevo**: crear carpeta `<programa>/`, copiar cualquier `install.sh` existente como plantilla, completar las 4 funciones (`is_installed`, `get_version`, `do_install`, `do_update`) y agregar una línea al array `TOOLS` en el `install.sh` raíz.
+- **Idempotencia**: cualquier modificación a archivos de configuración externos (`~/.claude/settings.json`, dotfiles, etc.) debe sobrescribir por clave completa, nunca fusionar/acumular arrays u objetos anidados. Ejecutar el script N veces debe producir el mismo archivo resultante que ejecutarlo una vez, sin líneas ni entradas duplicadas.
 
 ## Programas actuales
 

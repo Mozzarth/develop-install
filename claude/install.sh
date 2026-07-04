@@ -107,12 +107,10 @@ apply_settings() {
         '. + {
             "theme": $theme,
             "preferredLanguage": $lang,
-            "hooks": ((.hooks // {}) + {
-                "StatusBar": [{
-                    "type": "command",
-                    "command": $statusline
-                }]
-            })
+            "statusLine": {
+                "type": "command",
+                "command": $statusline
+            }
         }' > "$SETTINGS_FILE" 2>> "$LOG_FILE"
 
     print_ok "settings.json configurado (tema: dark-daltonized, idioma: es)"
