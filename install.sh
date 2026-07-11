@@ -26,6 +26,7 @@ TOOLS=(
 )
 
 RESULTS_OK=()
+RESULTS_SKIP=()
 RESULTS_ERROR=()
 
 run_tool() {
@@ -39,11 +40,14 @@ run_tool() {
         return
     fi
 
-    if LOG_FILE="$LOG_FILE" bash "$script"; then
-        RESULTS_OK+=("$name")
-    else
-        RESULTS_ERROR+=("$name")
-    fi
+    local exit_code=0
+    LOG_FILE="$LOG_FILE" bash "$script" || exit_code=$?
+
+    case "$exit_code" in
+        0) RESULTS_OK+=("$name") ;;
+        2) RESULTS_SKIP+=("$name") ;;
+        *) RESULTS_ERROR+=("$name") ;;
+    esac
 }
 
 main() {
@@ -88,6 +92,14 @@ main() {
     if [[ ${#RESULTS_OK[@]} -gt 0 ]]; then
         echo -e "${GREEN}  ✅ Completados:${RESET}"
         for item in "${RESULTS_OK[@]}"; do
+            echo -e "     • $item"
+        done
+        echo ""
+    fi
+
+    if [[ ${#RESULTS_SKIP[@]} -gt 0 ]]; then
+        echo -e "${YELLOW}  ⏭️  Omitidos:${RESET}"
+        for item in "${RESULTS_SKIP[@]}"; do
             echo -e "     • $item"
         done
         echo ""

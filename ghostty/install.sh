@@ -31,6 +31,11 @@ detect_os() {
     print_info "Sistema detectado: $OS"
 }
 
+# --- Detectar si es un servidor sin entorno gráfico ---
+is_headless() {
+    [[ -z "${DISPLAY:-}" ]] && [[ -z "${WAYLAND_DISPLAY:-}" ]]
+}
+
 # --- Instalar Homebrew si no existe ---
 ensure_brew() {
     if command -v brew &>/dev/null; then
@@ -90,6 +95,12 @@ do_update() {
 main() {
     print_section "$TOOL_NAME"
     detect_os
+
+    if [[ "$OS" == "linux" ]] && is_headless; then
+        print_skip "$TOOL_NAME omitido — servidor sin entorno gráfico (headless), no aplica"
+        exit 2
+    fi
+
     ensure_brew
 
     if is_installed; then
